@@ -5,6 +5,12 @@
   "description": "Chat server",
   "main": "index.js",
   "scripts": {
+    "prebuild": "npm run clean",
+    "build": "echo compilation...",
+    "postbuild": "echo build successful",
+    "postinstall": "npm run build",
+    "clean": "echo cleanup...",
+    "dev:server": "nodemon esm/server.mjs",
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
   },
