@@ -11,7 +11,8 @@
     "postinstall": "npm run build",
     "clean": "echo cleanup...",
     "dev:server": "nodemon --exec 'node -r dotenv/config' server.js",
-    "test": "jest",
+    "dev:test": "npm run test -- --watch",
+    "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",
     "start": "node -r dotenv/config server.js"
   },
   "author": "",
@@ -20,6 +21,7 @@
     "dotenv": "^10.0.0",
     "express": "^4.2.0",
     "ioredis": "^4.27.3",
+    "ioredis-mock": "^5.5.7",
     "lodash": "^4.17.21",
     "socket.io": "^4.1.2",
     "uuid": "^8.3.2"
