@@ -6,6 +6,8 @@ export const app = express();
 app.set("x-powered-by", false);
 app.set("etag", false);
 
+app.use(express.static("public"));
+
 // app.verb(route, handler)
 
 app.get("/", (req, res) => {

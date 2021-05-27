@@ -1,4 +1,4 @@
-import { fibo } from "./fibo.mjs";
+import { fibo } from "./fibo";
 import express from "express";
 
 export const app = express();
@@ -13,7 +13,8 @@ app.get("/", (req, res) => {
 });
 
 app.get("/fibo/:value([1-9][0-9]*)", (req, res) => {
-  const number = parseInt(req.params.value, 10);
-  res.send({ input: number, output: fibo(number) });
+  /*const params: {value: string} = req.params as unknown;
+  const number = parseInt(params.value, 10);
+  res.send({ input: number, output: fibo(number) });*/
   res.end();
 });
