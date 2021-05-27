@@ -1,6 +1,6 @@
-const http = require("http");
-const express = require("express");
-const fibo = require("./fibo"); // fibo === function ...
+import http from "http";
+import express from "express";
+import { fibo } from "./fibo.mjs";
 
 // 3001
 
