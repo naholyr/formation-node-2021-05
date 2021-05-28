@@ -5,8 +5,4 @@ const options = {
   port: 6378,
 };
 
-const client = new Redis(process.env.REDIS_URL);
-
-module.exports = {
-  client,
-};
+export const client = new Redis(process.env.REDIS_URL);

@@ -2,14 +2,14 @@ import { client } from "../redis-client";
 import { User } from "../model/user.model";
 import * as UUID from "uuid";
 
-const tokenDuration = 86000;
+const tokenDuration = Number(process.env.TOKEN_DURATION) || 86400;
 
-export const addUser = async (user: any): Promise<string> => {
+export const addUser = async (username: any): Promise<string> => {
   const token = UUID.v4();
   await client
     .multi()
-    .set(user, token, "EX", tokenDuration)
-    .set(token, user, "EX", tokenDuration)
+    .set("U:" + username, token, "EX", tokenDuration)
+    .set("T:" + token, username, "EX", tokenDuration)
     .exec();
   return token;
 };

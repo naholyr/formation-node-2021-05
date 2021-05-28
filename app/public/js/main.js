@@ -7,20 +7,41 @@
    * AUTHENTICATION (using REST API)
    */
 
-  const register = (username) => {
-    // TODO: call "/register"
-    const token = "FakeToken"; // TODO: from request
-    // TODO: periodically call "/refresh-token" to ensure living session
-    // Save token for auto-login
-    saveToken(token);
-    // Login now
-    login(token);
+  const register = async (username) => {
+    try {
+      const result = await $.post({
+        url: "/auth/register",
+        data: JSON.stringify({ username }),
+        contentType: "application/json; charset=utf8",
+        dataType: "json",
+      });
+      if (!result || !result.token) {
+        throw new Error("Registration failed: try another username");
+      }
+      saveToken(result.token);
+      login(result.token);
+    } catch (err) {
+      alert(err.message);
+    }
   };
 
   // Used for auto-login: check token and eventually call "onSuccess()" or "onFailure()"
-  const checkToken = (token, onSuccess, onFailure) => {
-    // TODO: call "/check-token"
-    onSuccess(); // TODO: call onSuccess() if token is OK, onFailure() otherwise
+  const checkToken = async (token, onSuccess, onFailure) => {
+    try {
+      const result = await $.post({
+        url: "/auth/check",
+        data: JSON.stringify({ token }),
+        contentType: "application/json; charset=utf8",
+        dataType: "json",
+      });
+      if (!result || !result.username) {
+        throw new Error("Registration failed: try another username");
+      }
+      onSuccess();
+    } catch (err) {
+      console.error(err);
+      onFailure();
+    }
   };
 
   /**
@@ -264,6 +285,7 @@
         login(storedToken);
       },
       () => {
+        localStorage.removeItem("token");
         // Restore login form
         $("#step-1").show();
       }

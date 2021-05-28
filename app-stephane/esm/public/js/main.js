@@ -8,6 +8,10 @@
    */
 
   const register = async (username) => {
+    // TODO: call "/register"
+    // TODO: periodically call "/refresh-token" to ensure living session
+    // Save token for auto-login
+    // Login now
     try {
       const result = await $.post({
         url: "/auth/register",
@@ -27,17 +31,22 @@
 
   // Used for auto-login: check token and eventually call "onSuccess()" or "onFailure()"
   const checkToken = async (token, onSuccess, onFailure) => {
+    // TODO: call "/check-token"
+    // TODO: call onSuccess() if token is OK, onFailure() otherwise
     try {
       const result = await $.post({
-        url: "/check-token",
+        url: "/auth/checktoken",
         data: JSON.stringify({ token }),
         contentType: "application/json; charset=utf8",
         dataType: "json",
       });
-
-      result.isAuthenticated ? onSuccess() : onFailure();
+      if (!result || !result.username) {
+        throw new Error("Check token failed");
+      }
+      onSuccess();
     } catch (err) {
-      console.log(err);
+      alert(err.message);
+      onFailure();
     }
   };
 
@@ -282,6 +291,7 @@
         login(storedToken);
       },
       () => {
+        localStorage.removeItem("token");
         // Restore login form
         $("#step-1").show();
       }

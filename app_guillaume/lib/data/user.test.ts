@@ -48,6 +48,7 @@ describe("Users", () => {
   });
 
   it("should expire in 10 seconds", async () => {
+    expect(process.env.TOKEN_DURATION).toEqual("10");
     forwardDate(10);
     expect(await getUsernameFromToken(token)).toBe(null);
     expect(await isUserAvailable(username)).toBe(true);

@@ -34,6 +34,11 @@ describe("Users", () => {
     expect(await isUserAvailable(username)).toBe(true);
   });
 
+  it("should not register invalid username", async () => {
+    token = await addUser("X");
+    expect(token).toBe(null);
+  });
+
   it("should register", async () => {
     token = await addUser(username);
     expect(token).toBeDefined();

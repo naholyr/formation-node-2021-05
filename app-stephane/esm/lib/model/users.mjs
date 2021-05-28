@@ -1,7 +1,7 @@
 import client from "../redis-client.mjs";
 import { v4 as uuidV4 } from "uuid";
 
-const tokenDuration = 86400;
+const tokenDuration = Number(process.env.TOKEN_DURATION) || 86400;
 
 /*
 

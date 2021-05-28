@@ -1,5 +1,8 @@
 const express = require("express");
 const { fibo } = require("./fibo"); // fibo === function ...
+const bodyParser = require("body-parser");
+const { addUser, getUsernameFromToken } = require("./lib/model/users");
+const { callbackify } = require("node:util");
 
 const app = express();
 
@@ -13,6 +16,9 @@ app.set("x-powered-by", false);
 app.set("etag", false);
 
 app.use(express.static("public"));
+
+app.use(bodyParser.json({}));
+// app.use(bodyParser.urlencoded(…))
 
 /*
 const middleware = (req, res, next) => {
@@ -73,38 +79,36 @@ app.get("/fibo/:number([1-9][0-9]*)", (req, res) => {
   res.send({ input: n, output: fibo(n) });
 });
 
-module.exports = app;
-
-// 3001
-
 /*
-string.substring(1); // tout sauf 1er caractères
-Number(string); // number ou NaN
-isNaN(value); // true si NaN
-JSON.stringify(objet); // json
-*/
-
-// GET / => "Coucou"
-// GET /nombre => JSON { input: nombre, output: fibo(nombre) }
-
-const requestHandler = (request, response) => {
-  // request.url = '/favicon.ico'
-  // request.method = 'GET'
-  // request.headers = { [lower case header name]: value }
-  let body = "";
-  if (request.method === "GET" && request.url === "/") {
-    body = "Coucou";
-  } else {
-    const n = Number(request.url.substring(1));
-    if (isNaN(n) || n < 0) {
-      response.statusCode = 400;
-      body = "Positive integer expected";
-    } else {
-      const result = fibo(n);
-      body = JSON.stringify({ input: n, output: result });
-    }
+app.post("/auth/register", async (req, res) => {
+  try {
+    const token = await addUser(req.body.username);
+    res.send({ token });
+  } catch (err) {
+    // TODO: use a real logger "bunyan" or "winston"
+    console.error(err);
+    res.status(500).send({ error: err.message });
   }
-  response.setHeader("Content-Length", body.length);
-  response.write(body);
-  response.end();
-};
+});
+*/
+app.post(
+  "/auth/register",
+  callbackify(async (req, res) => {
+    const token = await addUser(req.body.username);
+    res.send({ token });
+  })
+);
+
+app.post(
+  "/auth/check",
+  callbackify(async (req, res) => {
+    const username = await getUsernameFromToken(req.body.token);
+    if (username) {
+      res.send({ username });
+    } else {
+      res.status(401).send({ error: "Invalid token" });
+    }
+  })
+);
+
+module.exports = app;

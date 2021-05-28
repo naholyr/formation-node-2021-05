@@ -4,7 +4,8 @@
   "description": "chat server",
   "main": "server.js",
   "scripts": {
-    "test": "jest",
+    "dev:test": "npm run test -- --watch",
+    "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",
     "start": "ts-node -r dotenv/config server.ts",
     "dev": "nodemon --exec 'ts-node -r dotenv/config' server.ts"
   },

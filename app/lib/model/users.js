@@ -31,6 +31,9 @@ const getUsernameFromToken = async (token) => {
 
 // addUser(username): Promise<token: string>
 const addUser = async (username) => {
+  if (!username || username.length < 3) {
+    return null;
+  }
   const token = uuid.v4();
   await client
     .multi()
