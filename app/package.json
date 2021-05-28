@@ -13,7 +13,8 @@
     "dev:server": "nodemon --exec 'node -r dotenv/config' server.js",
     "dev:test": "npm run test -- --watch",
     "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",
-    "start": "node -r dotenv/config server.js"
+    "start": "node -r dotenv/config server.js",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -28,6 +29,7 @@
     "uuid": "^8.3.2"
   },
   "devDependencies": {
+    "eslint": "^7.27.0",
     "jest": "^27.0.1",
     "nodemon": "^2.0.7"
   },

@@ -13,7 +13,8 @@
     "dev:server": "nodemon --exec 'node -r dotenv/config' esm/server.mjs",
     "dev:test": "npm test -- --watch",
     "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",
-    "start": "node -r dotenv/config server.mjs"
+    "start": "node -r dotenv/config server.mjs",
+    "lint": "eslint ."
   },
   "author": "",
   "license": "ISC",
@@ -32,6 +33,7 @@
     "@babel/core": "^7.14.3",
     "@babel/node": "^7.14.2",
     "@babel/preset-env": "^7.14.2",
+    "eslint": "^7.27.0",
     "jest": "^27.0.1",
     "nodemon": "^2.0.7"
   },

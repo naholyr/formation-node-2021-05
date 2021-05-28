@@ -8,7 +8,8 @@
     "dev:test": "npm test -- --watch",
     "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",
     "start": "node server.mjs",
-    "dev:server": "nodemon --exec 'node -r dotenv/config' server.mjs"
+    "dev:server": "nodemon --exec 'node -r dotenv/config' server.mjs",
+    "lint": "eslint ."
   },
   "author": "TimVB",
   "license": "ISC",
@@ -25,6 +26,7 @@
     "@babel/core": "^7.14.3",
     "@babel/node": "^7.14.2",
     "@babel/preset-env": "^7.14.2",
+    "eslint": "^7.27.0",
     "ioredis-mock": "^5.5.7",
     "jest": "^27.0.1",
     "nodemon": "^2.0.7"
