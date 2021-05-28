@@ -93,14 +93,14 @@
   };
 
   const join = (room) => {
-    // TODO: emit "join-room"
+    socket.emit("join-room", room);
     // Update UI
     addRoom(room);
     select(room);
   };
 
   const leave = (room) => {
-    // TODO: emit "leave-room"
+    socket.emit("leave-room", room);
     // Update UI
     if (isActiveRoom(room)) {
       clearMessages();

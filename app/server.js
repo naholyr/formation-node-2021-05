@@ -39,10 +39,28 @@ const initWebsocket = (io, socket) => {
 
   let username;
 
+  const sendMessage = async (message) => {
+    if (!message.date) {
+      message.date = Date.now();
+    }
+    const storedMessage = await addMessage(message);
+    io.to(storedMessage.room).emit("recv-message", storedMessage);
+  };
+
   socket.on("login", async (token, cb) => {
     try {
       username = await getUsernameFromToken(token);
       cb(username);
+      // Initialize rooms
+      socket.join("(system)");
+      socket.join("@" + username);
+      socket.join("#general");
+      await sendMessage({
+        room: "#general",
+        username,
+        message: "s’est connecté",
+        system: true,
+      });
     } catch (err) {
       cb(null);
     }
@@ -52,20 +70,32 @@ const initWebsocket = (io, socket) => {
     if (!username) {
       return;
     }
-    const messageObject = {
-      room,
-      message,
-      username,
-      date: Date.now(),
-      system: false,
-    };
-    const storedMessage = await addMessage(messageObject);
-    io.emit("recv-message", storedMessage);
+    await sendMessage({ room, message, username });
   });
 
   socket.on("get-messages", async (room, limit, cb) => {
     const messages = await listMessages(room, limit);
     cb(messages);
+  });
+
+  socket.on("join-room", async (room) => {
+    socket.join(room);
+    await sendMessage({
+      room,
+      username,
+      message: "a rejoint " + room,
+      system: true,
+    });
+  });
+
+  socket.on("leave-room", async (room) => {
+    socket.leave(room);
+    await sendMessage({
+      room,
+      username,
+      message: "a quitté " + room,
+      system: true,
+    });
   });
 
   socket.on("disconnect", () => {
