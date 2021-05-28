@@ -1,6 +1,7 @@
-export interface message {
+export interface Message {
     username: string;
     text: string;
     room: string;
-    system: boolean
+    date: number,
+    system?: boolean
 }

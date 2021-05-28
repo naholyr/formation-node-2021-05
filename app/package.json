@@ -10,6 +10,7 @@
     "postbuild": "echo build successful",
     "postinstall": "npm run build",
     "clean": "echo cleanup...",
+
     "dev:server": "nodemon --exec 'node -r dotenv/config' server.js",
     "dev:test": "npm run test -- --watch",
     "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",

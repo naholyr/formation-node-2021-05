@@ -49,7 +49,7 @@ app.post("/auth/register", async (req, res) => {
 });
 app.post("/auth/checktoken", async (req, res) => {
   try {
-    const token = await getUsernameFromToken(req.body.token);
+    const username = await getUsernameFromToken(req.body.token);
     res.send({ username });
   } catch (err) {
     // TODO: use a real logger "bunyan" or "winston"

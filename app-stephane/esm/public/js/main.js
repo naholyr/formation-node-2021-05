@@ -2,6 +2,37 @@
 
 /* globals $:readonly, dateFns:readonly, io:readonly */
 
+//socket.emit('event', ...args) => envoyer au server
+//socket.emit('event', ...args, cb) => envoyer au server + cb
+//socket.on('event', cb) => appelle la cb quand le server envoi
+
+/*socket.on("coucou", () => {
+  //si le message n'apparait pas dans le pool des ws => c'est l'ALP qui gere
+  //donc la connexion n'etait pas encore aboutie à 100%
+  console.log("recu : coucou");
+});
+
+setInterval(() => {
+  socket.emit("tick", Date.now());
+}, 5000);
+
+socket.on("tock", (latency) => {
+  console.log("latence : " + latency);
+});
+
+setTimeout(() => {
+  socket.emit("fibo", 2, (result) => {
+    console.log("fibo(2)", result);
+  });
+  socket.emit("fibo", 5, (result) => {
+    console.log("fibo(5).1", result);
+  });
+  socket.emit("fibo", 5, (result) => {
+    console.log("fibo(5).2", result);
+  });
+}, 3000);
+*/
+
 (() => {
   /**
    * AUTHENTICATION (using REST API)
@@ -54,29 +85,77 @@
    * INIT (to be implemented with websocket interactions)
    */
 
+  const socket = io();
+
   const login = (token) => {
-    console.log({ token });
+    socket.emit("login", token, (username) => {
+      if (!username) {
+        alert("invalid token");
+        return;
+      }
+      socket.on("receive-message", (info) => {
+        addMessage(info);
+      });
+      initializeChat(username);
+      // Don't lose context on reconnection
+      // TODO: use connection parameters (https://socket.io/docs/v4/client-initialization/#query)
+      socket.io.on("reconnect", () => {
+        socket.emit("login", token, () => {});
+      });
+    });
+
+    /*console.log({ token });
     // TODO: connect websocket
+    const socket = io();
+
+    //quand quelque envoi un message
+    socket.on("receive-message", (info) => {
+      addMessage(info);
+    });
+
+    const username = "Toto"; // TODO: sent by websocket server on connection
+    initializeChat(username);
+
     // TODO: watch for "recv-message"
+    addMessage({
+      room: "#general",
+      message: "coucou steph",
+      username: "bidule",
+      date: Date.now() - 3600000,
+    });
+    addMessage({
+      room: "#general",
+      message: "coucou steph",
+      username: "bidule",
+      date: Date.now() - 3700000,
+      system: true,
+    });*/
     // TODO: optionally watch for "logged-in", "joined-room", and "left-room"
     // TODO: handle errors ("connect_error", "disconnect", ...)
     // TODO: handle initialization:
-    const username = "Toto"; // TODO: sent by websocket server on connection
-    initializeChat(username);
   };
 
   const send = (message) => {
     // TODO: emit "send-message" (this should trigger "recv-message" as a result)
+    socket.emit("send-message", { message, room: activeRoom });
+    /*addMessage({
+      room: activeRoom,
+      message: message,
+      username: username,
+      date: Date.now(),
+    });*/
   };
 
   const select = (room) => {
     // TODO: emit "get-messages" to fetch room's messages
-    const messages = []; // TODO: sent by websocket server
-    // Update UI
-    setActiveRoom(room);
-    clearRoomBadge(room);
-    clearMessages();
-    messages.reverse().forEach(addMessage);
+    //const messages = []; // TODO: sent by websocket server
+    socket.emit("get-messages", { room: room }, (messages) => {
+      // Update UI
+      setActiveRoom(room);
+      clearRoomBadge(room);
+      clearMessages();
+      messages.sort().forEach(addMessage);
+    });
   };
 
   const join = (room) => {
@@ -230,6 +309,7 @@
     addRoom("(system)", { closable: false, badge: false });
     addRoom("@" + username, { closable: false });
     addRoom("#general");
+    addRoom("#truc");
     select("#general");
     // Update UI
     $("#step-1").hide();

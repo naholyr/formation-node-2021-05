@@ -44,23 +44,30 @@
   /**
    * INIT (to be implemented with websocket interactions)
    */
-
+  const socket = io();
   const login = (token) => {
-    console.log({ token });
-    // TODO: connect websocket
-    // TODO: watch for "recv-message"
-    // TODO: optionally watch for "logged-in", "joined-room", and "left-room"
-    // TODO: handle errors ("connect_error", "disconnect", ...)
-    // TODO: handle initialization:
-    const username = "Toto"; // TODO: sent by websocket server on connection
-    initializeChat(username);
+    socket.emit("login", token, (username) => {
+      if (!username) {
+        alert("Invalid token (vraiment pas de chance)");
+        return;
+      }
+      // When someone sends a message: display it
+      socket.on("recv-message", (info) => {
+        addMessage(info);
+      });
+      // TODO: optionally watch for "logged-in", "joined-room", and "left-room"
+      // TODO: handle errors ("connect_error", "disconnect", ...)
+      initializeChat(username);
+    });
   };
 
   const send = (message) => {
+    socket.emit("send-message", { room: activeRoom, message });
     // TODO: emit "send-message" (this should trigger "recv-message" as a result)
   };
 
   const select = (room) => {
+    socket.emit("get-messages", room);
     // TODO: emit "get-messages" to fetch room's messages
     const messages = []; // TODO: sent by websocket server
     // Update UI

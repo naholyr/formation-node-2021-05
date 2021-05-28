@@ -2,6 +2,7 @@
 
 /* globals $:readonly, dateFns:readonly, io:readonly */
 
+const socket = io();
 (() => {
   /**
    * AUTHENTICATION (using REST API)
@@ -22,43 +23,64 @@
       login(result.token);
     } catch (err) {
       alert(err.message);
-      onFailure();
     }
   };
 
   // Used for auto-login: check token and eventually call "onSuccess()" or "onFailure()"
-  const checkToken = (token, onSuccess, onFailure) => {
-    // TODO: call "/check-token"
-    onSuccess(); // TODO: call onSuccess() if token is OK, onFailure() otherwise
+  const checkToken = async (token, onSuccess, onFailure) => {
+    try {
+      const result = await $.post({
+        url: "/auth/check",
+        data: JSON.stringify({ token }),
+        contentType: "application/json; charset=utf8",
+        dataType: "json",
+      });
+      if (!result || !result.username) {
+        throw new Error("Registration failed: try another username");
+      }
+      onSuccess();
+    } catch (err) {
+      console.error(err);
+      onFailure();
+    }
+
+    // TODO: call onSuccess() if token is OK, onFailure() otherwise
   };
 
   /**
    * INIT (to be implemented with websocket interactions)
    */
-
   const login = (token) => {
-    console.log({ token });
-    // TODO: connect websocket
-    // TODO: watch for "recv-message"
-    // TODO: optionally watch for "logged-in", "joined-room", and "left-room"
-    // TODO: handle errors ("connect_error", "disconnect", ...)
-    // TODO: handle initialization:
-    const username = "Toto"; // TODO: sent by websocket server on connection
-    initializeChat(username);
+    socket.emit("login", token);
+    socket.on("login-error", (err) => {
+      alert("Invalid token :" + err);
+    });
+    socket.on("login-success", (username) => {
+      if (!username) {
+        alert("Invalid token (vraiment pas de chance)");
+        return;
+      }
+      socket.io.on("reconnect", () => {
+        socket.emit("login", token, () => {});
+      });
+      initializeChat(username);
+      socket.on("recv-message", (info) => {
+        addMessage(info);
+      });
+    });
   };
 
   const send = (message) => {
-    // TODO: emit "send-message" (this should trigger "recv-message" as a result)
+    socket.emit("send-message", { room: activeRoom, message: message });
   };
 
   const select = (room) => {
-    // TODO: emit "get-messages" to fetch room's messages
-    const messages = []; // TODO: sent by websocket server
-    // Update UI
-    setActiveRoom(room);
-    clearRoomBadge(room);
-    clearMessages();
-    messages.reverse().forEach(addMessage);
+    socket.emit("get-messages", room, (messages) => {
+      setActiveRoom(room);
+      clearRoomBadge(room);
+      clearMessages();
+      messages.reverse().forEach(addMessage);
+    });
   };
 
   const join = (room) => {

@@ -1,6 +1,13 @@
 "use strict";
 
+// En prod:
+// import io from 'socket.io-client';
+
 /* globals $:readonly, dateFns:readonly, io:readonly */
+
+// socket.emit('nom', ...args) => envoyer au serveur
+// socket.emit('nom', ...args, cb) => envoyer au serveur + callback
+// socket.on('nom', cb) => appelle le callback quand le serveur envoie
 
 (() => {
   /**
@@ -48,29 +55,41 @@
    * INIT (to be implemented with websocket interactions)
    */
 
+  const socket = io();
+
   const login = (token) => {
-    console.log({ token });
-    // TODO: connect websocket
-    // TODO: watch for "recv-message"
-    // TODO: optionally watch for "logged-in", "joined-room", and "left-room"
-    // TODO: handle errors ("connect_error", "disconnect", ...)
-    // TODO: handle initialization:
-    const username = "Toto"; // TODO: sent by websocket server on connection
-    initializeChat(username);
+    socket.emit("login", token, (username) => {
+      if (!username) {
+        alert("Invalid token (vraiment pas de chance)");
+        return;
+      }
+      // Don't lose context on reconnection
+      // TODO: use connection parameters (https://socket.io/docs/v4/client-initialization/#query)
+      socket.io.on("reconnect", () => {
+        socket.emit("login", token, () => {});
+      });
+      // When someone sends a message: display it
+      socket.on("recv-message", (info) => {
+        addMessage(info);
+      });
+      // TODO: optionally watch for "logged-in", "joined-room", and "left-room"
+      // TODO: handle errors ("connect_error", "disconnect", ...)
+      initializeChat(username);
+    });
   };
 
   const send = (message) => {
-    // TODO: emit "send-message" (this should trigger "recv-message" as a result)
+    socket.emit("send-message", { room: activeRoom, message });
   };
 
   const select = (room) => {
-    // TODO: emit "get-messages" to fetch room's messages
-    const messages = []; // TODO: sent by websocket server
-    // Update UI
-    setActiveRoom(room);
-    clearRoomBadge(room);
-    clearMessages();
-    messages.reverse().forEach(addMessage);
+    socket.emit("get-messages", room, 10, (messages) => {
+      // Update UI
+      setActiveRoom(room);
+      clearRoomBadge(room);
+      clearMessages();
+      messages.reverse().forEach(addMessage);
+    });
   };
 
   const join = (room) => {

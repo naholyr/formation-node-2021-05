@@ -10,8 +10,8 @@ app.set("x-powered-by", false);
 app.set("etag", false);
 
 app.use(express.static("public"));
-
 app.use(bodyParser.json({}));
+
 app.get("/fibo/:number([0-9]+)", (req, res) => {
   res.send({ number: fibo(Number(req.params.number)) });
 });

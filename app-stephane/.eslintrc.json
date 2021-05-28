@@ -12,6 +12,7 @@
     },
     "rules": {
         "no-console": "warn",
-        "arrow-parens": "error"
+        "arrow-parens": "error",
+        "no-shadow": "error"
     }
 }
