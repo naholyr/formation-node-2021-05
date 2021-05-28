@@ -10,11 +10,10 @@
     "postbuild": "echo build successful",
     "postinstall": "npm run build",
     "clean": "echo cleanup...",
-
-    "dev:server": "nodemon --exec 'node -r dotenv/config' server.js",
+    "dev:server": "nodemon --exec 'node -r dotenv/config' index.js",
     "dev:test": "npm run test -- --watch",
     "test": "DOTENV_CONFIG_PATH=.env.test jest --setupTestFrameworkScriptFile=dotenv/config",
-    "start": "node -r dotenv/config server.js",
+    "start": "node -r dotenv/config index.js",
     "lint": "eslint ."
   },
   "author": "",
@@ -27,6 +26,8 @@
     "ioredis-mock": "^5.5.7",
     "lodash": "^4.17.21",
     "socket.io": "^4.1.2",
+    "socket.io-redis": "^6.1.1",
+    "sticky-cluster": "^0.3.5",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

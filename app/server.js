@@ -3,6 +3,7 @@ const app = require("./app");
 const socketio = require("socket.io");
 const { getUsernameFromToken } = require("./lib/model/users");
 const { addMessage, listMessages } = require("./lib/model/messages");
+const redisAdapter = require("socket.io-redis");
 
 const server = http.createServer(app);
 
@@ -10,9 +11,11 @@ server.on("listening", () => {
   console.log("Server ready: http://localhost:" + process.env.PORT);
 });
 
-server.listen(Number(process.env.PORT));
+module.exports = server;
 
 const io = socketio();
+
+io.adapter(redisAdapter(process.env.REDIS_URL));
 
 io.listen(server);
 
